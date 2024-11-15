@@ -103,3 +103,15 @@ theme: butterfly
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: ''
+
+# webp cloud  pic proxy
+webp_cloud_proxy:
+      enable: true
+      # the suffix of img type to use webp cloud service
+      convert_type_list: ["jpg", "jpeg", "png", "gif"]
+      # your site url
+      pre_url: https://img.myang.me
+      # webp cloud service proxy url
+      proxy_url: https://4f3e171.webp.li
+      # the filter priority, see https://hexo.io/api/filter.html
+      priority: 10

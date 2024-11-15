@@ -1,0 +1,90 @@
+name: Notion-Action-MD
+
+on:
+  push:
+    branches:
+      - main
+  # 手动运行
+  workflow_dispatch:
+  # 允许外部仓库事件触发
+  repository_dispatch:
+    types:
+      - deploy
+  schedule:
+    - cron: "30 5,21 * * *" # 每天 5:30 和 21:30
+env:
+  DAY_OF_WEEK: Monday
+  Greeting: Good
+  First_Name: MondayOKO
+  Second_Name: Tuesday
+  Third_Name: Wednesday
+  Fourth_Name: Thursday
+  Fifth_Name: Friday
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检查获取的变量
+        run: |
+          echo "env,$Greeting $First_Name. Today is $DAY_OF_WEEK!"
+          # echo "${{ secrets.NOTION_TOKEN }}"
+          # echo "secrets.NOTION_DATABASE_ID!"
+          # echo "${{ secrets.NOTION_DATABASE_ID }}"
+          # echo "secrets.NOTION_DATABASE_ID.R2_ACCESSKEYID!"
+          # echo "${{ secrets.R2_ACCESSKEYID }}"
+          # echo "secrets.NOTION_DATABASE_ID.R2_SECRET_ACCESSKEY!"
+          # echo "${{ secrets.R2_SECRET_ACCESSKEY }}"
+
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9.1.0
+
+      - name: Install dependencies
+        run: pnpm i
+
+      - name: 安装 @elog/cli
+        run: pnpm i @elog/cli -g
+
+      - name: 安装 @elog/plugin-adapter
+        run: pnpm install @elog/plugin-adapter -g
+
+      - name: 执行 elog sync
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          # COS_SECRET_ID: ${{ secrets.COS_SECRET_ID }}
+          # COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
+          # COS_BUCKET: ${{ secrets.COS_BUCKET }}
+          # COS_REGION: ${{ secrets.COS_REGION }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ACCESSKEYID: ${{ secrets.R2_ACCESSKEYID }}
+          R2_SECRET_ACCESSKEY: ${{ secrets.R2_SECRET_ACCESSKEY }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_HOST: ${{ secrets.R2_HOST }}
+
+        run: |
+          elog clean
+          elog sync
+
+      - name: 配置Git用户名邮箱
+        run: |
+          git config --global user.name "derickIT"
+          git config --global user.email "charleszhn@hotmail.com"
+
+      - name: 提交拉取的文章到GitHub仓库
+        run: |
+          echo `date +"%Y-%m-%d %H:%M:%S"` begin > time.txt
+          git add .
+          git commit -m "Refresh elog.cache.json" -a
+
+      - name: 推送文章到仓库
+        # uses: DerickIT/think-blog@main
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Action保活
+        uses: gautamkrishnar/keepalive-workflow@master
