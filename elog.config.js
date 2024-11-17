@@ -1,4 +1,5 @@
 const { url } = require('hexo/dist/hexo/default_config')
+const { category } = require('hexo/dist/plugins/helper/is')
 
 module.exports = {
   write: {
@@ -9,7 +10,7 @@ module.exports = {
       filter: {property: 'status', select: {equals: '已发布'}},
       sorts: [{ timestamp: 'created_time', direction: 'descending' }],
       catalog: {
-        enable: true,
+        enable: false,
         property: "day"
       },
     },
@@ -21,6 +22,13 @@ module.exports = {
       outputDir: './source/_posts',
       filename: 'title',
       format: 'markdown',
+      catalog: false,
+      frontMatter: {
+        enable: true,
+        include: ['title', 'categories', 'summary', 'urlname', 'category', 'tags', 'date', 'cover'],
+        timeFormat: true,
+      },
+      formatExt: './format-Ext.js',
     },
   },
   image: {
